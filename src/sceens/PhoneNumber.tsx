@@ -1,10 +1,11 @@
-import { SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import React, { useState } from 'react';
+import { SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View, ActivityIndicator } from 'react-native';
+import React, { useEffect, useState } from 'react';
 import '../../global.css';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import ROUTES from '../navigation /routes/Routes';
 import { useNavigation } from '@react-navigation/native';
 import { scale } from '../responsiveSize';
+import { useAuthStore } from '../store/authStore';
 
 type RooStackParamList = {
   [key:string]:any
@@ -14,9 +15,30 @@ type PhoneNumberScreenNavigatorProp = NativeStackNavigationProp<RooStackParamLis
  typeof ROUTES.PHONE_NUMBER >;
 
 const PhoneNumber = () => {
-  const [PhoneNumber, setPhoneNumber] = useState<string>('');
+  const [phoneNumber, setPhoneNumber] = useState<string>('');
   const navigation = useNavigation<PhoneNumberScreenNavigatorProp>();
-  const [error, setError] = useState<string>('');
+  const {sendOtp, isLoading,error,setError} = useAuthStore()
+  const[isLogin] = useState<boolean>(true)
+  useEffect(() => {
+    if (phoneNumber.length == 10 && !isLoading){
+      handleContinue();
+    }
+  },[phoneNumber])
+  const handleContinue = async () => {
+    if(!PhoneNumber || PhoneNumber.length <10 ){
+      setError ('Please enter a valid 10-digit number ')
+      return;
+      }
+      setError(null);
+      try{
+         const fullPhone = `+91${phoneNumber}`
+         const sessionId = await sendOtp(fullPhone)
+         navigation.navigate(ROUTES.OTP, {phoneNumber:fullPhone,sessionId,isLoading})
+
+              }catch(err){
+         console.error('Handle continue', err)
+      }
+  }
   return (
         <SafeAreaView style={{flex:1,backgroundColor:'white'}}>
       <View style={{justifyContent:'flex-start', paddingTop:48,paddingHorizontal:24}}>
@@ -31,7 +53,7 @@ const PhoneNumber = () => {
           <TextInput style={{color:'black',fontSize:18}} 
           placeholder='Votre numero de telephone'
           keyboardType="phone-pad"
-          value={PhoneNumber}
+          value={phoneNumber}
           onChangeText={(text) => {
             const numericText = text.replace(/\D/g, "");
             setPhoneNumber(numericText);
@@ -40,7 +62,13 @@ const PhoneNumber = () => {
           autoFocus={true}
           />
         </View>
-        {error && <Text style={{color: '#EF4444',marginTop:scale(8),fontSize:16}}>{error}</Text>}
+        {error && <Text style={{color: 'red',marginTop:scale(8),fontSize:16}}>{error}</Text>}
+         {(isLoading) && (
+                        <View style={{marginTop:scale(16),flexDirection:'row',justifyContent:'center',alignItems:'center'}}>
+                          <ActivityIndicator color='gray'/>
+                          <Text style={{color:'gray',marginLeft:scale(8)}}>Sending OTP...</Text>
+                        </View>
+                      )}
       </View >
       <View  style={{marginVertical:scale(375)}}>
       <TouchableOpacity>

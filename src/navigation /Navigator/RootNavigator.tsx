@@ -8,6 +8,7 @@ import Chat from '../../sceens/Chat';
 import Contact from '../../sceens/Contact';
 import {ChatsIcon} from 'phosphor-react-native'
 import OTP from '../../sceens/OTP';
+import SetPin from '../../sceens/SetPin';
 
 const AuthStack = createNativeStackNavigator();
 
@@ -15,7 +16,9 @@ function AuthNavigator(){
   return(
     <AuthStack.Navigator screenOptions={{headerShown:false}}>
       <AuthStack.Screen name={ROUTES.PHONE_NUMBER} component={PhoneNumber}/> 
-      <AuthStack.Screen name={ROUTES.OTP} component={OTP}/>     
+      <AuthStack.Screen name={ROUTES.OTP} component={OTP}/>    
+      <AuthStack.Screen name={ROUTES.SET_PIN} component={SetPin}/>     
+
     </AuthStack.Navigator>
   )
 

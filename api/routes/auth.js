@@ -1,8 +1,8 @@
-const exptress = require("express");
+const express = require("express");
 const axios = require ("axios");
 const jwt = require ("jsonwebtoken");
 const User = require("../models /User");
-const router = exptress.Router();
+const router = express.Router();
 
 
 router.post("/sent-otp",async(req,res) =>{
@@ -51,3 +51,6 @@ router.post("/verify-otp", async(req,res) =>{
           res.status(500).json({error:'Server Error'});
     }
 })
+
+
+module.exports = router;
